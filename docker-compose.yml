@@ -1,0 +1,32 @@
+version: '3'
+services:
+  decidim:
+    image: ghcr.io/decidim/decidim:0.24.3
+    entrypoint: ["/code/vendor/docker-entrypoint.sh"]
+    command: ["bundle", "exec", "rails", "s", "-b", "0.0.0.0"]
+    ports:
+      - 3000:3000
+    volumes:
+      # Makes our entrypoint scripts available to the container
+      # under /code/vendor
+      - ./scripts:/code/vendor
+    environment:
+      - RAILS_ENV=development
+      - DATABASE_HOST=pg
+      - DATABASE_USERNAME=postgres
+    links:
+      - pg
+      - redis
+  pg:
+    image: postgres
+    volumes:
+      - ./pg-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+  redis:
+    image: redis
+    volumes:
+      - ./redis-data:/data
+volumes:
+  pg-data:
+  redis-data:
